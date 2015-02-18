@@ -37,7 +37,7 @@ $config->{bind}      = '0.0.0.0';
 $config->{daemonize} = 1;
 $config->{LOG_FILE}  = $config->{homedir} . "/kspkeyserver.log";
 $config->{LOG_LEVEL} = 7;
-$config->{configfile} = 'keyserver.conf';
+$config->{configfile} = defined $ENV{'KSP_HOMEDIR'} ? $ENV{'KSP_HOMEDIR'} . "/keyserver.conf" : 'keyserver.conf';
 
 GetOptions ( 
     "configfile=s" => \$config->{configfile},
@@ -94,7 +94,9 @@ while ( my $c = $d->accept ) {
             my ( $targethost, $port ) = split( /:/, $tmphost );
 
             #sanitize the hostname
-            $targethost =~ s/[^\w-]/_/g;
+            $targethost =~ s/[^a-z0-9-]/_/ig;
+            $targethost = lc($targethost);
+
             $log->write(
                 $c->peerhost() . " wants to submit a key to ksp $targethost",
                 7
